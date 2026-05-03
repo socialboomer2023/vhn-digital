@@ -88,7 +88,7 @@ export default function ClientEcosystemSection() {
       const material = new THREE.MeshLambertMaterial({
         map: texture,
         transparent: true,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
       });
       const mesh = new THREE.Mesh(geometry, material);
 
