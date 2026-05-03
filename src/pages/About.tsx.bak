@@ -31,8 +31,8 @@ const VALUES = [
 
 const STATS = [
   { icon: Award, value: '15+', label: 'Years Experience' },
-  { icon: Globe, value: '50+', label: 'Global Clients' },
-  { icon: Users, value: '36+', label: 'Team Members' },
+  { icon: Globe, value: '500+', label: 'Global Clients' },
+  { icon: Users, value: '2,500+', label: 'Team Members' },
   { icon: Clock, value: '99.9%', label: 'Client Retention' },
 ];
 
@@ -118,7 +118,7 @@ export default function About() {
               Founded with a vision to bridge the gap between complex enterprise technology and tangible business outcomes, VHN Services has grown into a trusted partner for organizations worldwide.
             </p>
             <p className="font-body text-[1rem] leading-[1.7] text-[#8B95A5] mb-4">
-              Our team of 36+ engineers, architects, and consultants brings deep expertise across cloud, AI, cybersecurity, and data engineering. We combine technical excellence with business acumen to deliver solutions that don't just work — they transform.
+              Our team of 2,500+ engineers, architects, and consultants brings deep expertise across cloud, AI, cybersecurity, and data engineering. We combine technical excellence with business acumen to deliver solutions that don't just work — they transform.
             </p>
             <p className="font-body text-[1rem] leading-[1.7] text-[#8B95A5]">
               Headquartered with a global delivery model, we serve clients across North America, Europe, and Asia-Pacific. Our culture of innovation, integrity, and client obsession drives everything we do.
