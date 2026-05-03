@@ -1,0 +1,130 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ArrowRight } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
+
+export default function FeaturedInsightSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+  const img1Ref = useRef<HTMLImageElement>(null);
+  const img2Ref = useRef<HTMLImageElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const img1 = img1Ref.current;
+    const img2 = img2Ref.current;
+    if (!section || !img1 || !img2) return;
+
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start: 'top bottom',
+      end: 'bottom top',
+      scrub: true,
+      onUpdate: (self) => {
+        const progress = self.progress;
+        const distortion = Math.sin(progress * Math.PI) * 0.15;
+
+        img1.style.transform = `scale(${1 + distortion * 0.5}) translateX(${distortion * 20}px)`;
+        img1.style.filter = `brightness(${1 - progress * 0.3})`;
+        img1.style.opacity = String(1 - progress);
+
+        img2.style.transform = `scale(${1 + (1 - progress) * 0.1}) translateX(${(1 - progress) * -20}px)`;
+        img2.style.opacity = String(progress);
+      },
+    });
+
+    return () => { st.kill(); };
+  }, [imageLoaded]);
+
+  useEffect(() => {
+    const text = textRef.current;
+    if (!text) return;
+
+    gsap.fromTo(text,
+      { opacity: 0, x: 40 },
+      {
+        opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: text, start: 'top 60%' },
+      }
+    );
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative min-h-[100dvh] flex items-center"
+      style={{ zIndex: 1 }}
+    >
+      <div className="w-full max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center">
+        {/* Left - Image */}
+        <div
+          ref={imageContainerRef}
+          className="w-full lg:w-[55%] relative overflow-hidden"
+          style={{ height: '75vh', minHeight: '400px' }}
+        >
+          <img
+            ref={img1Ref}
+            src="/images/img-1.jpg"
+            alt="Enterprise cloud operations center"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 1 }}
+            onLoad={() => setImageLoaded(true)}
+          />
+          <img
+            ref={img2Ref}
+            src="/images/img-2.jpg"
+            alt="AI neural network visualization"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 0 }}
+          />
+        </div>
+
+        {/* Right - Text */}
+        <div ref={textRef} className="w-full lg:w-[45%] px-8 lg:px-16 py-12 lg:py-0">
+          <span className="label-mono block mb-4">
+            Featured Insight
+          </span>
+
+          <h2 className="font-heading font-light text-[clamp(2.5rem,4vw,4rem)] leading-[1.15] tracking-[-0.01em] text-[#E8EDF5]">
+            The Adaptive Enterprise
+          </h2>
+
+          <p className="font-body text-[1.125rem] leading-[1.7] tracking-[0.01em] text-[#8B95A5] mt-6">
+            Cloud infrastructure that learns. Security that evolves. Data platforms that anticipate. We help organizations move from reactive operations to predictive intelligence — systems that adapt in real time to changing demands.
+          </p>
+
+          {/* Stats */}
+          <div className="flex items-center gap-6 mt-12">
+            <div className="text-center">
+              <div className="font-heading font-normal text-[2rem] text-[#E8EDF5]">500+</div>
+              <div className="font-mono text-[0.75rem] text-[#8B95A5] uppercase tracking-wider">Enterprise clients</div>
+            </div>
+            <div className="w-px h-12 bg-[rgba(232,237,245,0.2)]" />
+            <div className="text-center">
+              <div className="font-heading font-normal text-[2rem] text-[#E8EDF5]">99.9%</div>
+              <div className="font-mono text-[0.75rem] text-[#8B95A5] uppercase tracking-wider">Platform uptime</div>
+            </div>
+            <div className="w-px h-12 bg-[rgba(232,237,245,0.2)]" />
+            <div className="text-center">
+              <div className="font-heading font-normal text-[2rem] text-[#E8EDF5]">40%</div>
+              <div className="font-mono text-[0.75rem] text-[#8B95A5] uppercase tracking-wider">Avg. cost reduction</div>
+            </div>
+          </div>
+
+          <Link
+            to="/about"
+            className="inline-flex items-center gap-2 font-heading text-[0.875rem] text-[#4ECDC4] hover:text-[#E8EDF5] transition-colors mt-8 group"
+          >
+            Read the whitepaper
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

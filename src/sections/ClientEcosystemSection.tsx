@@ -1,0 +1,199 @@
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import * as THREE from 'three';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const LOGO_NAMES = [
+  'Google', 'Microsoft', 'AWS', 'Oracle', 'SAP', 'Salesforce',
+  'IBM', 'Intel', 'NVIDIA', 'Adobe', 'VMware', 'Cisco',
+  'Dell', 'HP', 'Lenovo', 'Accenture', 'Deloitte', 'KPMG',
+  'PwC', 'McKinsey', 'BCG', 'Bain', 'Infosys', 'Wipro',
+];
+
+export default function ClientEcosystemSection() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<number>(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const w = container.offsetWidth;
+    const h = 500;
+
+    const scene = new THREE.Scene();
+    scene.rotation.y = 0.15;
+
+    const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 1500);
+    camera.position.z = 800;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0xE8EDF5, 2.0);
+    scene.add(ambientLight);
+
+    const spotLight = new THREE.SpotLight(0x4ECDC4, 30.0, 0, Math.PI / 3, 0.3);
+    spotLight.position.set(0, 300, 400);
+    spotLight.target.position.set(0, 0, 0);
+    scene.add(spotLight);
+    scene.add(spotLight.target);
+
+    const pointLight = new THREE.PointLight(0xffffff, 3.0, 0, 2);
+    pointLight.position.set(200, 200, 200);
+    scene.add(pointLight);
+
+    const pointLight2 = new THREE.PointLight(0x4ECDC4, 2.0, 0, 2);
+    pointLight2.position.set(-200, -100, 300);
+    scene.add(pointLight2);
+
+    const ringGroup = new THREE.Group();
+    scene.add(ringGroup);
+
+    const radius = 300;
+    const count = 24;
+
+    for (let i = 0; i < count; i++) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+
+      ctx.fillStyle = 'rgba(78, 205, 196, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(4, 4, 120, 120, 8);
+      ctx.fill();
+
+      // Border glow
+      ctx.strokeStyle = 'rgba(78, 205, 196, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(4, 4, 120, 120, 8);
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '600 15px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(LOGO_NAMES[i], 64, 64);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const geometry = new THREE.PlaneGeometry(80, 80);
+      const material = new THREE.MeshLambertMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+
+      const logoGroup = new THREE.Group();
+      logoGroup.add(mesh);
+      ringGroup.add(logoGroup);
+
+      const angle = i / count * Math.PI * 2;
+      logoGroup.position.x = Math.sin(angle) * radius;
+      logoGroup.position.y = (i % 2 === 0 ? 1 : -1) * 120;
+      logoGroup.position.z = Math.cos(angle) * radius;
+      logoGroup.lookAt(0, logoGroup.position.y, 0);
+    }
+
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    function onMouseMove(e: MouseEvent) {
+      mouseX = (e.clientX - windowHalfX) * 0.001;
+      mouseY = (e.clientY - windowHalfY) * 0.001;
+      targetRotationY = mouseX * 0.5;
+      targetRotationX = mouseY * 0.5;
+    }
+
+    document.addEventListener('mousemove', onMouseMove, false);
+
+    function animate() {
+      frameRef.current = requestAnimationFrame(animate);
+      scene.rotation.y += 0.001 * 0.5;
+      scene.rotation.x += 0.001 * 0.2;
+      scene.rotation.y += 0.08 * (targetRotationY - scene.rotation.y);
+      scene.rotation.x += 0.08 * (targetRotationX - scene.rotation.x);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    function onResize() {
+      const c = containerRef.current;
+      if (!c) return;
+      const newW = c.offsetWidth;
+      camera.aspect = newW / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newW, h);
+    }
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      cancelAnimationFrame(frameRef.current);
+      document.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', onResize);
+      renderer.dispose();
+      const currentContainer = containerRef.current;
+      if (currentContainer && currentContainer.contains(renderer.domElement)) {
+        currentContainer.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const text = textRef.current;
+    if (!text) return;
+
+    gsap.fromTo(text.children,
+      { opacity: 0, y: 20 },
+      {
+        opacity: 1, y: 0, stagger: 0.15, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
+      }
+    );
+
+    gsap.fromTo(containerRef.current,
+      { opacity: 0 },
+      {
+        opacity: 1, duration: 1.2, delay: 0.3,
+        scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
+      }
+    );
+  }, []);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="relative py-[120px] px-6"
+      style={{ zIndex: 1 }}
+    >
+      <div className="max-w-[1280px] mx-auto">
+        <div ref={textRef} className="text-center mb-12">
+          <span className="label-mono block mb-4">Client Ecosystem</span>
+          <h2 className="font-heading font-light text-[clamp(2.5rem,4vw,4rem)] leading-[1.15] tracking-[-0.01em] text-[#E8EDF5]">
+            Trusted by industry leaders
+          </h2>
+          <p className="font-body text-[1.125rem] leading-[1.7] tracking-[0.01em] text-[#8B95A5] max-w-[560px] mx-auto mt-6">
+            From healthcare to financial services, energy to retail — the world's most demanding organizations rely on our platforms.
+          </p>
+        </div>
+
+        <div
+          ref={containerRef}
+          style={{ width: '100%', height: '500px', overflow: 'hidden' }}
+        />
+      </div>
+    </section>
+  );
+}
