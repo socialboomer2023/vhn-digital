@@ -85,7 +85,7 @@ export default function FeaturedInsightSection() {
         </div>
 
         {/* Right - Text */}
-        <div ref={textRef} className="w-full lg:w-[45%] px-8 lg:px-16 py-12 lg:py-0">
+        <div ref={textRef} className="w-full lg:w-[45%] px-8 lg:px-16 py-12 lg:py-0" style={{ background: 'transparent' }}>
           <span className="label-mono block mb-4">
             Featured Insight
           </span>

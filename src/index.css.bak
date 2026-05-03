@@ -31,7 +31,6 @@
 
   * {
     @apply border-border;
-	background-color: transparent;
   }
 
   html {
@@ -94,7 +93,7 @@
   }
 
   .bg-surface {
-	background-color: transparent;
+    background-color: rgba(11, 22, 40, 0.6);
   }
 
   .bg-dark-surface {
